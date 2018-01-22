@@ -66,130 +66,139 @@ licenseplate.Image.Save("bb.png");
 			fs.Close();
 			Bitmap tryo = new Bitmap(temp);*/
 
-//wow = GetText(tryo);
-//SetLP(wow);
-// duh = true;
+		//wow = GetText(tryo);
+		//SetLP(wow);
+		// duh = true;
 
-/*#region CHARACTER SEGMENTATION CODE
+		/*#region CHARACTER SEGMENTATION CODE
 
 
-float pn_area = cropped.Size.Width * cropped.Size.Height;
-using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
-{
-	CvInvoke.FindContours(canny, contours, null, RetrType.Ccomp, ChainApproxMethod.ChainApproxSimple);
-	int count = contours.Size;
-	Mat RectangleImage = new Mat(canny.Size, DepthType.Cv8U, 3);
-	RectangleImage.SetTo(new MCvScalar(0));
-	for (int i = 0; i < count; i++)
-	{
-		using (VectorOfPoint contour = contours[i])
-		using (VectorOfPoint approxContour = new VectorOfPoint())
+		float pn_area = cropped.Size.Width * cropped.Size.Height;
+		using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
 		{
-			CvInvoke.ApproxPolyDP(contour, approxContour, 3, true);
-			Rectangle rectangle = CvInvoke.BoundingRectangle(approxContour);
-			float h = rectangle.Size.Height;
-			float w = rectangle.Size.Width;
-			float hh = h / w;
-			float ww = w / h;
-			float thearea = ((h * w) / pn_area) * 100;
-			if ((hh > 1.1 && hh < 7.0) && (ww > 0.10 && ww < 1.0) && (thearea > 1.0))
+			CvInvoke.FindContours(canny, contours, null, RetrType.Ccomp, ChainApproxMethod.ChainApproxSimple);
+			int count = contours.Size;
+			Mat RectangleImage = new Mat(canny.Size, DepthType.Cv8U, 3);
+			RectangleImage.SetTo(new MCvScalar(0));
+			for (int i = 0; i < count; i++)
 			{
-				boxlist.Add(CvInvoke.MinAreaRect(approxContour));
-				Mat cropped2 = new Mat(cropped, rectangle);
-				listchar.Add(cropped2);
-				coord.Add(rectangle.Location.X);
+				using (VectorOfPoint contour = contours[i])
+				using (VectorOfPoint approxContour = new VectorOfPoint())
+				{
+					CvInvoke.ApproxPolyDP(contour, approxContour, 3, true);
+					Rectangle rectangle = CvInvoke.BoundingRectangle(approxContour);
+					float h = rectangle.Size.Height;
+					float w = rectangle.Size.Width;
+					float hh = h / w;
+					float ww = w / h;
+					float thearea = ((h * w) / pn_area) * 100;
+					if ((hh > 1.1 && hh < 7.0) && (ww > 0.10 && ww < 1.0) && (thearea > 1.0))
+					{
+						boxlist.Add(CvInvoke.MinAreaRect(approxContour));
+						Mat cropped2 = new Mat(cropped, rectangle);
+						listchar.Add(cropped2);
+						coord.Add(rectangle.Location.X);
+					}
+
+				}
 			}
-
 		}
-	}
-}
-List<string> extracted = new List<string>();
-for (int i = 0; i < listchar.Count; i++)
-{
-	//MessageBox.Show(i.ToString());
-	//CvInvoke.Imshow(i.ToString() + " Row: " + listchar[i].Rows.ToString() + " Col: " + listchar[i].Cols.ToString(), listchar[i]);
-	Bitmap kuha = changeimg(listchar[i]);
-	string tryr = GetText(kuha);
-	extracted.Add(tryr);
-	MessageBox.Show(extracted[i]);
-}
-string testingan = string.Join("",extracted);
-SetLP(testingan);
+		List<string> extracted = new List<string>();
+		for (int i = 0; i < listchar.Count; i++)
+		{
+			//MessageBox.Show(i.ToString());
+			//CvInvoke.Imshow(i.ToString() + " Row: " + listchar[i].Rows.ToString() + " Col: " + listchar[i].Cols.ToString(), listchar[i]);
+			Bitmap kuha = changeimg(listchar[i]);
+			string tryr = GetText(kuha);
+			extracted.Add(tryr);
+			MessageBox.Show(extracted[i]);
+		}
+		string testingan = string.Join("",extracted);
+		SetLP(testingan);
 
-#endregion
-									
-
-                        #region FOR REARRANGING SEGMENTED IMAGES
+		#endregion
 
 
-                        for (int i = 0; i<coord.Count; i++)
-                        {
-                            for (int j = 1; j<coord.Count; j++)
-                            {
-                                if (coord[i] == coord[j])
-                                {
-                                    coord.RemoveAt(j);
-                                    listchar.RemoveAt(j);
-                                }
-}
-                        }
+								#region FOR REARRANGING SEGMENTED IMAGES
 
-                        for (int i = 0; i<coord.Count; i++)
-                        {
-                            for (int j = i; j<coord.Count; j++)
-                            {
-                                if (coord[i] > coord[j])
-                                {
-                                    Mat w = listchar[i];
-listchar[i] = listchar[j];
-                                    listchar[j] = w;
-                                }
-                            }
-                        }
 
-                        for (int i = 0; i<coord.Count; i++)
-                        {
-                            for (int j = i; j<coord.Count; j++)
-                            {
-                                if (coord[i] > coord[j])
-                                {
-                                    int w = coord[i];
-coord[i] = coord[j];
-                                    coord[j] = w;
-                                }
-                            }
-                        }
+								for (int i = 0; i<coord.Count; i++)
+								{
+									for (int j = 1; j<coord.Count; j++)
+									{
+										if (coord[i] == coord[j])
+										{
+											coord.RemoveAt(j);
+											listchar.RemoveAt(j);
+										}
+		}
+								}
 
-						#endregion
+								for (int i = 0; i<coord.Count; i++)
+								{
+									for (int j = i; j<coord.Count; j++)
+									{
+										if (coord[i] > coord[j])
+										{
+											Mat w = listchar[i];
+		listchar[i] = listchar[j];
+											listchar[j] = w;
+										}
+									}
+								}
 
-						//SetLP(licplt);
-						List<string> extracted = new List<string>();
-						for (int i = 0; i<coord.Count; i++)
-                        {
-                            Bitmap kuha = changeimg(listchar[i]);
-MessageBox.Show(coord[i].ToString());
-							string tryr = GetText(kuha);
-extracted.Add(tryr);
-						}
-						string testingan = string.Join("", extracted);
-SetLP(testingan);
+								for (int i = 0; i<coord.Count; i++)
+								{
+									for (int j = i; j<coord.Count; j++)
+									{
+										if (coord[i] > coord[j])
+										{
+											int w = coord[i];
+		coord[i] = coord[j];
+											coord[j] = w;
+										}
+									}
+								}
+
+								#endregion
+
+								//SetLP(licplt);
+								List<string> extracted = new List<string>();
+								for (int i = 0; i<coord.Count; i++)
+								{
+									Bitmap kuha = changeimg(listchar[i]);
+		MessageBox.Show(coord[i].ToString());
+									string tryr = GetText(kuha);
+		extracted.Add(tryr);
+								}
+								string testingan = string.Join("", extracted);
+		SetLP(testingan);
 
 
 
-public static Bitmap changeimg(Mat image) //To save image in a folder then calling it back again to be processed
-{
-	Bitmap img;
+		public static Bitmap changeimg(Mat image) //To save image in a folder then calling it back again to be processed
+		{
+			Bitmap img;
 
 
 
-	cerode.Save("aa.png");
-	FileStream fs = new FileStream(Application.StartupPath + @"\aa.png", FileMode.Open, FileAccess.Read);
-	Image tempe = Image.FromStream(fs);
-	fs.Close();
-	img = new Bitmap(tempe);
+			cerode.Save("aa.png");
+			FileStream fs = new FileStream(Application.StartupPath + @"\aa.png", FileMode.Open, FileAccess.Read);
+			Image tempe = Image.FromStream(fs);
+			fs.Close();
+			img = new Bitmap(tempe);
 
-	return img;
-}*/
+			return img;
+
+
+
+								string str = "D:\\THESIS II NEEDS\\this\\Auto_parking_LPR_share\\Auto_parking\\Auto_parking\\bin\\Debug\\ImageTest\\1b.jpg";
+								//string str = "C:\\Users\\Mayers Matthew\\Desktop\\FINALPROJECT\\3.jpg";
+								
+
+
+                        //Mat gray1 = new Mat(str, ImreadModes.Grayscale);
+		}*/
 
 	}
 }

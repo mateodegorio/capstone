@@ -25,7 +25,7 @@ namespace finaltesting
     public partial class verification : Form, DPFP.Capture.EventHandler
     {
         private DPFP.Capture.Capture Capturer;
-        
+		public bool check = false;
 
         public verification()
         {
@@ -181,12 +181,27 @@ namespace finaltesting
             }));
         }
 
+		protected void passing()
+		{
+			Invoke(new Action(() =>
+			{
+				using (Bitmap bmp = new Bitmap(webcama.ClientSize.Width,
+												webcama.ClientSize.Height))
+				{
+					webcama.DrawToBitmap(bmp, webcama.ClientRectangle);
+					bmp.Save("1d.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
+				}
+			}));
+		}
+
         private void close_Click(object sender, EventArgs e) //to close form 
         {
             this.Close();
             mainform main = new mainform();
             main.Show();
-        }
+			check = true;
+
+		}
 
         private void verification_Load(object sender, EventArgs e)
         {

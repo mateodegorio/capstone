@@ -35,7 +35,13 @@ namespace finaltesting
         {
             Template = template;
             ShowDialog();
-        }
+			
+			if (check == true)
+			{
+				cam.Stop();
+				check = false;
+			}
+		}
 
         protected override void Init()
         {
@@ -44,17 +50,18 @@ namespace finaltesting
             Verificator = new DPFP.Verification.Verification();
             UpdateStatus(0);
 
-            webcam = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+			webcam = new FilterInfoCollection(FilterCategory.VideoInputDevice);
             cam = new VideoCaptureDevice(webcam[0].MonikerString);
             cam.NewFrame += new NewFrameEventHandler(cam_NewFrame);
             cam.Start();
 
-        }
+		}
 
         void cam_NewFrame(object sender, NewFrameEventArgs eventArgs)
         {
             Bitmap bit = (Bitmap)eventArgs.Frame.Clone();
-        }
+			webcama.Image = bit;
+		}
 
         protected override void Process(DPFP.Sample Sample) //Processing and comparing of scanned fingerprint and stored fingerprint
         {
@@ -96,20 +103,24 @@ namespace finaltesting
 
 						#region LICENSE PLATE RECOGNITION CODE
 
-						string str = "D:\\THESIS II NEEDS\\this\\Auto_parking_LPR_share\\Auto_parking\\Auto_parking\\bin\\Debug\\ImageTest\\3c.jpg";
-						//string str = "C:\\Users\\Mayers Matthew\\Desktop\\FINALPROJECT\\3.jpg";
+						passing();
+
+						FileStream Fs = new FileStream(Application.StartupPath + @"\1d.jpg", FileMode.Open, FileAccess.Read);
+						Image tmp = Image.FromStream(Fs);
+						Fs.Close();
+						Bitmap pictkn = new Bitmap(tmp);
+
 						Mat cropped = new Mat();
-                        Mat ORIG = new Mat(str);
+						Image<Bgr, byte> origni = new Image<Bgr, byte>(pictkn);
 
-                        List<RotatedRect> boxList = new List<RotatedRect>();
-                        List<int> coord = new List<int>();
-
-                        Mat gray1 = new Mat(str, ImreadModes.Grayscale);
+						Mat ORIG = origni.Mat;
+						Image<Gray, byte> wow = new Image<Gray, byte>(pictkn);
 
                         Mat otsus = new Mat();
-                        CvInvoke.Threshold(gray1, otsus, 0, 255, ThresholdType.Otsu);
+                        CvInvoke.Threshold(wow, otsus, 0, 255, ThresholdType.Otsu);
 
-                        using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
+						List<RotatedRect> boxList = new List<RotatedRect>();
+						using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
                         {
                             CvInvoke.FindContours(otsus, contours, null, RetrType.Tree, ChainApproxMethod.ChainApproxSimple);
                             int count = contours.Size;
@@ -155,19 +166,19 @@ namespace finaltesting
 							Mat cerode = new Mat();
 							CvInvoke.MorphologyEx(closeotsu, cerode, MorphOp.Erode, structElem, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
 
-							cerode.Save("nn.png");
-							FileStream fs = new FileStream(Application.StartupPath + @"\nn.png", FileMode.Open, FileAccess.Read);
+							cerode.Save("nn.jpg");
+							FileStream fs = new FileStream(Application.StartupPath + @"\nn.jpg", FileMode.Open, FileAccess.Read);
 							Image tempe = Image.FromStream(fs);
 							fs.Close();
 							Bitmap imgnew = new Bitmap(tempe);
 
-							var img = new Bitmap(tempe);
+							var img = new Bitmap(imgnew);
 							var ocr = new TesseractEngine("./tessdata", "eng", EngineMode.Default);
-							var page = ocr.Process(img);
+							var pagenew = ocr.Process(img);
 
 							int count = 0;
 
-							string newplt = page.GetText();
+							string newplt = pagenew.GetText();
 							char[] checknew = newplt.ToCharArray();
 							char[] dbnewplt = licplt.ToCharArray();
 
@@ -179,10 +190,13 @@ namespace finaltesting
 									}
 								}
 							}
-							if (count == 0)
+							if (count > 3)
 							{
 
 								SetLP(licplt);
+
+								MessageBox.Show(trylang.ToString() + ", Hello " + name + " Welcome");
+								MessageBox.Show("Verified");
 
 							}
 							else
@@ -190,6 +204,7 @@ namespace finaltesting
 								MessageBox.Show("SORRY THE PLATE DOES NOT MATCH!");
 							}
 						}
+
 						if(clas == "OLD")
 						{
 							Mat grayplate = new Mat();
@@ -200,13 +215,48 @@ namespace finaltesting
 
 							Mat canny = new Mat();
 							CvInvoke.Canny(otsu, canny, 100, 50, 3, false);
-							licenseplate.Image = otsu;
-							otsu.Save("orayt.jpg");
-						}
 
-						
-						MessageBox.Show(trylang.ToString() + ", Hello " + name + " Welcome");
-                        MessageBox.Show("Verified");
+							otsu.Save("oo.jpg");
+							FileStream FS = new FileStream(Application.StartupPath + @"\oo.jpg", FileMode.Open, FileAccess.Read);
+							Image temp = Image.FromStream(FS);
+							FS.Close();
+							Bitmap imgold = new Bitmap(temp);
+
+							var img = new Bitmap(imgold);
+							var ocr = new TesseractEngine("./tessdata", "eng", EngineMode.Default);
+							var pageold = ocr.Process(img);
+
+							int count = 0;
+
+							string oldplt = pageold.GetText();
+							char[] checkold = oldplt.ToCharArray();
+							char[] dboldplt = licplt.ToCharArray();
+
+							foreach (char i in checkold)
+							{
+								foreach (char c in dboldplt)
+								{
+									if (i == c)
+									{
+										count++;
+										break;
+									}
+								}
+							}
+							if (count > 3)
+							{
+
+								SetLP(licplt);
+
+								MessageBox.Show(trylang.ToString() + ", Hello " + name + " Welcome");
+								MessageBox.Show("Verified");
+
+							}
+							else
+							{
+								MessageBox.Show("SORRY THE PLATE DOES NOT MATCH!");
+							}
+						}
                     }
                 }
             }
