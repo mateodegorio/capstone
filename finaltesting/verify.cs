@@ -31,6 +31,9 @@ namespace finaltesting
         private FilterInfoCollection webcam;
         public VideoCaptureDevice cam;
 
+        public int parkstud = 200;
+        public int parkemp = 100;
+
         public void Verify(DPFP.Template template)
         {
             Template = template;
@@ -99,6 +102,7 @@ namespace finaltesting
                         string name = (string)dr["fullname"];
                         string licplt = (string)dr["licenseplate"];
                         string stat = (string)dr["employment"];
+                        string wat = (string)dr["status"];
 						string clas = (string)dr["plateclass"];
 
 						#region LICENSE PLATE RECOGNITION CODE
@@ -194,8 +198,25 @@ namespace finaltesting
 							{
 
 								SetLP(licplt);
+                                if(wat == "Not Parked") {
+                                    MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + trylang + ";", con);
 
-								MessageBox.Show(trylang.ToString() + ", Hello " + name + " Welcome");
+                                    con.Open(); cmd.ExecuteNonQuery();
+                                    con.Close();
+
+                                    parkstud = parkstud - 1;
+                                    UpdateParkSpaceS(parkstud.ToString());
+                                }
+                                else {
+                                    MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + trylang + ";", con);
+
+                                    con.Open(); cmd.ExecuteNonQuery();
+                                    con.Close();
+
+                                    parkstud = parkstud + 1;
+                                    UpdateParkSpaceS(parkstud.ToString());
+                                }
+                                MessageBox.Show(trylang.ToString() + ", Hello " + name + " Welcome" + parkstud.ToString() + "");
 								MessageBox.Show("Verified");
 
 							}
@@ -264,30 +285,40 @@ namespace finaltesting
 
 
 
-        public static string GetText(Bitmap imagesource) //TESSERACT OCR FROM NuGet PACKAGE OF VISUAL STUDIO 2017
-        {
-			FileStream fs = new FileStream("C:\\Users\\Mayers Matthew\\Documents\\Visual Studio 2017\\Projects\\Testing\\Testing\\bin\\Debug\\bb.png", FileMode.Open, FileAccess.Read);
-			Image tempe = Image.FromStream(fs);
-			fs.Close();
-			Bitmap imeg = new Bitmap(tempe);
+  //      public static string GetText(Bitmap imagesource) //TESSERACT OCR FROM NuGet PACKAGE OF VISUAL STUDIO 2017
+  //      {
+		//	FileStream fs = new FileStream("C:\\Users\\Mayers Matthew\\Documents\\Visual Studio 2017\\Projects\\Testing\\Testing\\bin\\Debug\\bb.png", FileMode.Open, FileAccess.Read);
+		//	Image tempe = Image.FromStream(fs);
+		//	fs.Close();
+		//	Bitmap imeg = new Bitmap(tempe);
 
-			var ocrtext = string.Empty;
-			using (var engine = new TesseractEngine("./tessdata", "eng", EngineMode.Default))
-			{
-				using (var img = PixConverter.ToPix(imagesource))
-				{
-					using (var page = engine.Process(img))
-					{
-						ocrtext = page.GetText();
-					}
-				}
-			}
-			return ocrtext;
-		}
+		//	var ocrtext = string.Empty;
+		//	using (var engine = new TesseractEngine("./tessdata", "eng", EngineMode.Default))
+		//	{
+		//		using (var img = PixConverter.ToPix(imagesource))
+		//		{
+		//			using (var page = engine.Process(img))
+		//			{
+		//				ocrtext = page.GetText();
+		//			}
+		//		}
+		//	}
+		//	return ocrtext;
+		//}
         
         private void SetLP(string licenseplate) //to display extracted text from license plate
         {
             setLicPlate(String.Format("LP: {0}", licenseplate));
+        }
+
+        private void UpdateParkSpaceS(string parkSspace) //to display extracted text from license plate
+        {
+            parkingSspace(String.Format("Student Parking Space: {0}", parkSspace));
+        }
+
+        private void UpdateParkSpaceE(string parkEspace) //to display extracted text from license plate
+        {
+            parkingEspace(String.Format("Employee Parking Space: {0}", parkEspace));
         }
 
         private void UpdateStatus(int FAR) //to display False accept Rate of fingerprint scanning

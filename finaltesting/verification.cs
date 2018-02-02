@@ -132,6 +132,22 @@ namespace finaltesting
             }));
         }
 
+        protected void parkingSspace(string parkSspace)
+        {
+            this.Invoke((Action)(delegate ()
+            {
+                label7.Text = parkSspace;
+            }));
+        }
+
+        protected void parkingEspace(string parkEspace)
+        {
+            this.Invoke((Action)(delegate ()
+            {
+                label8.Text = parkEspace;
+            }));
+        }
+
         public void SetPrompt(string prompt)
         {
             this.Invoke((Action)(delegate ()
