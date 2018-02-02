@@ -194,30 +194,67 @@ namespace finaltesting
 									}
 								}
 							}
-							if (count > 3)
+							if (count < 3)
 							{
+                                if(stat == "STUDENT")
+                                {
+                                    if (wat == "Not Parked")
+                                    {
+                                        MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + trylang + ";", con);
 
-								SetLP(licplt);
-                                if(wat == "Not Parked") {
-                                    MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + trylang + ";", con);
+                                        con.Open(); cmd.ExecuteNonQuery();
+                                        con.Close();
 
-                                    con.Open(); cmd.ExecuteNonQuery();
-                                    con.Close();
+                                        parkstud = parkstud - 1;
+                                        UpdateParkSpaceS(parkstud.ToString());
+                                        MessageBox.Show("Hello " + name + ", Welcome to the Ateneo Parking lot!");
+                                    }
+                                    else
+                                    {
+                                        MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + trylang + ";", con);
 
-                                    parkstud = parkstud - 1;
-                                    UpdateParkSpaceS(parkstud.ToString());
+                                        con.Open(); cmd.ExecuteNonQuery();
+                                        con.Close();
+
+                                        parkstud = parkstud + 1;
+                                        UpdateParkSpaceS(parkstud.ToString());
+                                        MessageBox.Show("Good bye " + name + ", have a safe trip!");
+                                    }
+
+                                    SetLP(licplt);
+                                    
+                                    //MessageBox.Show("Verified");
                                 }
-                                else {
-                                    MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + trylang + ";", con);
+                                if(stat == "EMPLOYEE")
+                                {
+                                    if (wat == "Not Parked")
+                                    {
+                                        MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + trylang + ";", con);
 
-                                    con.Open(); cmd.ExecuteNonQuery();
-                                    con.Close();
+                                        con.Open(); cmd.ExecuteNonQuery();
+                                        con.Close();
 
-                                    parkstud = parkstud + 1;
-                                    UpdateParkSpaceS(parkstud.ToString());
+                                        parkemp = parkemp - 1;
+                                        UpdateParkSpaceE(parkemp.ToString());
+
+                                        MessageBox.Show("Hello " + name + ", Welcome to the Ateneo Parking lot!");
+                                    }
+                                    else
+                                    {
+                                        MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + trylang + ";", con);
+
+                                        con.Open(); cmd.ExecuteNonQuery();
+                                        con.Close();
+
+                                        parkemp = parkemp + 1;
+                                        UpdateParkSpaceE(parkemp.ToString());
+                                        MessageBox.Show("Good bye " + name + ", have a safe trip!");
+                                    }
+
+                                    SetLP(licplt);
+                                    //MessageBox.Show("Verified");
                                 }
-                                MessageBox.Show(trylang.ToString() + ", Hello " + name + " Welcome" + parkstud.ToString() + "");
-								MessageBox.Show("Verified");
+
 
 							}
 							else
@@ -282,29 +319,6 @@ namespace finaltesting
                 }
             }
         }
-
-
-
-  //      public static string GetText(Bitmap imagesource) //TESSERACT OCR FROM NuGet PACKAGE OF VISUAL STUDIO 2017
-  //      {
-		//	FileStream fs = new FileStream("C:\\Users\\Mayers Matthew\\Documents\\Visual Studio 2017\\Projects\\Testing\\Testing\\bin\\Debug\\bb.png", FileMode.Open, FileAccess.Read);
-		//	Image tempe = Image.FromStream(fs);
-		//	fs.Close();
-		//	Bitmap imeg = new Bitmap(tempe);
-
-		//	var ocrtext = string.Empty;
-		//	using (var engine = new TesseractEngine("./tessdata", "eng", EngineMode.Default))
-		//	{
-		//		using (var img = PixConverter.ToPix(imagesource))
-		//		{
-		//			using (var page = engine.Process(img))
-		//			{
-		//				ocrtext = page.GetText();
-		//			}
-		//		}
-		//	}
-		//	return ocrtext;
-		//}
         
         private void SetLP(string licenseplate) //to display extracted text from license plate
         {
@@ -313,12 +327,12 @@ namespace finaltesting
 
         private void UpdateParkSpaceS(string parkSspace) //to display extracted text from license plate
         {
-            parkingSspace(String.Format("Student Parking Space: {0}", parkSspace));
+            parkingSspace(String.Format("Available Student Parking Space: {0}", parkSspace));
         }
 
         private void UpdateParkSpaceE(string parkEspace) //to display extracted text from license plate
         {
-            parkingEspace(String.Format("Employee Parking Space: {0}", parkEspace));
+            parkingEspace(String.Format("Available Employee Parking Space: {0}", parkEspace));
         }
 
         private void UpdateStatus(int FAR) //to display False accept Rate of fingerprint scanning

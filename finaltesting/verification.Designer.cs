@@ -164,9 +164,9 @@
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.25F);
             this.label7.Location = new System.Drawing.Point(298, 641);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(157, 17);
+            this.label7.Size = new System.Drawing.Size(218, 17);
             this.label7.TabIndex = 13;
-            this.label7.Text = "Student Parking Space:";
+            this.label7.Text = "Available Student Parking Space:";
             // 
             // label8
             // 
@@ -174,9 +174,9 @@
             this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.25F);
             this.label8.Location = new System.Drawing.Point(574, 641);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(170, 17);
+            this.label8.Size = new System.Drawing.Size(231, 17);
             this.label8.TabIndex = 14;
-            this.label8.Text = "Employee Parking Space:";
+            this.label8.Text = "Available Employee Parking Space:";
             // 
             // licenseplate
             // 
