@@ -34,7 +34,6 @@ namespace finaltesting
             DPFP.FeatureSet features = ExtractFeatures(Sample, DPFP.Processing.DataPurpose.Enrollment);
             DPFP.Capture.SampleConversion ToByte = new DPFP.Capture.SampleConversion();
 
-
             // Check quality of the sample and add to enroller if it's good
             if (features != null) try
                 {

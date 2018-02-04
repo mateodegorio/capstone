@@ -22,7 +22,7 @@ namespace finaltesting
         {
             base.Init();
             base.Text = "Fingerprint Enrollment";
-            Enroller = new DPFP.Processing.Enrollment();            // Create an enrollment.
+            Enrollers = new DPFP.Processing.Enrollment();            // Create an enrollment.
             UpdateStatus();
         }
 
@@ -35,36 +35,36 @@ namespace finaltesting
             DPFP.Capture.SampleConversion ToByte = new DPFP.Capture.SampleConversion();
 
 
-            // Check quality of the sample and add to enroller if it's good
+            // Check quality of the sample and add to Enrollers if it's good
             if (features != null) try
                 {
                     MakeReport("The fingerprint feature set was created.");
-                    Enroller.AddFeatures(features);
+                    Enrollers.AddFeatures(features);
                 }
                 finally
                 {
                     UpdateStatus();
 
                     // Check if template has been created.
-                    switch (Enroller.TemplateStatus)
+                    switch (Enrollers.TemplateStatus)
                     {
                         case DPFP.Processing.Enrollment.Status.Ready:   // report success and stop capturing
                             {
-                                OnTemplate(Enroller.Template);
+                                OnTemplate(Enrollers.Template);
                                 SetPrompt("Click Close, and then click Fingerprint Verification.");
                                 Stop();
                                 MemoryStream fingerprintData = new MemoryStream();
-                                Enroller.Template.Serialize(fingerprintData);
+                                Enrollers.Template.Serialize(fingerprintData);
                                 fingerprintData.Position = 0;
                                 BinaryReader br = new BinaryReader(fingerprintData);
                                 byte[] bytes = br.ReadBytes((Int32)fingerprintData.Length);
 
                                 try
                                 {
-                                    MySqlCommand cmd = new MySqlCommand("INSERT INTO referral(referfinger) VALUES(@img);", con);
-                                    cmd.Parameters.Add("@img", MySqlDbType.VarBinary).Value = bytes;
+                                    MySqlCommand comm = new MySqlCommand("INSERT INTO referral(referfinger) VALUES(@img);", con);
+                                    comm.Parameters.Add("@img", MySqlDbType.VarBinary).Value = bytes;
 
-                                    con.Open(); cmd.ExecuteNonQuery();
+                                    con.Open(); comm.ExecuteNonQuery();
                                     con.Close();
 
                                 }
@@ -77,7 +77,7 @@ namespace finaltesting
 
                         case DPFP.Processing.Enrollment.Status.Failed:  // report failure and restart capturing
                             {
-                                Enroller.Clear();
+                                Enrollers.Clear();
                                 Stop();
                                 UpdateStatus();
                                 OnTemplate(null);
@@ -91,10 +91,10 @@ namespace finaltesting
         private void UpdateStatus()
         {
             // Show number of samples needed.
-            SetStatus(String.Format("Show number of samples needed: {0}", Enroller.FeaturesNeeded));
+            SetStatus(String.Format("Show number of samples needed: {0}", Enrollers.FeaturesNeeded));
         }
 
-        private DPFP.Processing.Enrollment Enroller;
+        private DPFP.Processing.Enrollment Enrollers;
 
         private void InitializeComponent()
         {

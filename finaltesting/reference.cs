@@ -135,7 +135,7 @@ namespace finaltesting
         {
             this.Invoke((Action)(delegate ()
             {
-                fingerprint.Image = new Bitmap(bitmap, fingerprint.Size);
+                refingerprint.Image = new Bitmap(bitmap, refingerprint.Size);
             }));
         }
 
@@ -193,7 +193,7 @@ namespace finaltesting
                 refid = Convert.ToInt32(reader["refid"]);
             }
             con.Close();
-            MySqlCommand cmd = new MySqlCommand("UPDATE referral SET refername = '" + name.Text + "', regisid = " + enrollment.regid + ", employment = '" + status.Text + "', relation = '" + relation.Text + "' WHERE refid = " + refid + ";", con);
+            MySqlCommand cmd = new MySqlCommand("UPDATE referral SET refername = '" + name.Text + "', regisid = " + enrollment.regid + ", employment = '" + status.Text + "', relation = '" + relation.Text + "', status = 'Not Parked' WHERE refid = " + refid + ";", con);
 
             con.Open(); cmd.ExecuteNonQuery();
             con.Close();

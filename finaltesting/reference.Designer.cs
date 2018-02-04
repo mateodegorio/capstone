@@ -38,10 +38,10 @@
             this.Prompt = new System.Windows.Forms.TextBox();
             this.name = new System.Windows.Forms.TextBox();
             this.StatusLine = new System.Windows.Forms.TextBox();
-            this.fingerprint = new System.Windows.Forms.PictureBox();
+            this.refingerprint = new System.Windows.Forms.PictureBox();
             this.relation = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
-            ((System.ComponentModel.ISupportInitialize)(this.fingerprint)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.refingerprint)).BeginInit();
             this.SuspendLayout();
             // 
             // label6
@@ -144,15 +144,15 @@
             this.StatusLine.Size = new System.Drawing.Size(439, 22);
             this.StatusLine.TabIndex = 18;
             // 
-            // fingerprint
+            // refingerprint
             // 
-            this.fingerprint.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.fingerprint.Location = new System.Drawing.Point(12, 52);
-            this.fingerprint.Name = "fingerprint";
-            this.fingerprint.Size = new System.Drawing.Size(260, 247);
-            this.fingerprint.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.fingerprint.TabIndex = 17;
-            this.fingerprint.TabStop = false;
+            this.refingerprint.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.refingerprint.Location = new System.Drawing.Point(12, 52);
+            this.refingerprint.Name = "refingerprint";
+            this.refingerprint.Size = new System.Drawing.Size(260, 247);
+            this.refingerprint.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.refingerprint.TabIndex = 17;
+            this.refingerprint.TabStop = false;
             // 
             // relation
             // 
@@ -189,12 +189,12 @@
             this.Controls.Add(this.Prompt);
             this.Controls.Add(this.name);
             this.Controls.Add(this.StatusLine);
-            this.Controls.Add(this.fingerprint);
+            this.Controls.Add(this.refingerprint);
             this.Name = "reference";
             this.Text = "reference";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.reference_FormClosed);
             this.Load += new System.EventHandler(this.reference_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.fingerprint)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.refingerprint)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -212,7 +212,7 @@
         private System.Windows.Forms.TextBox Prompt;
         private System.Windows.Forms.TextBox name;
         private System.Windows.Forms.TextBox StatusLine;
-        private System.Windows.Forms.PictureBox fingerprint;
+        private System.Windows.Forms.PictureBox refingerprint;
         private System.Windows.Forms.TextBox relation;
         private System.Windows.Forms.Label label4;
     }

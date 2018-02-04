@@ -171,24 +171,6 @@ namespace finaltesting
             }));
         }
 
- /*       private string getfullname()
-        {
-            string na = name.Text;
-            return na;
-        }
-
-        private string getstatus()
-        {
-            string pep = status.Text;
-            return pep;
-        }
-
-        private string getlicenseplate()
-        {
-            string reg = licenseplate.Text;
-            return reg;
-        }*/
-
         private void enroll_Click(object sender, EventArgs e)
         {
             MySqlCommand comm = new MySqlCommand("SELECT * FROM parkingdetail;", con);

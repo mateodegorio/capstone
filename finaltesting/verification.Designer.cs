@@ -43,6 +43,8 @@
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
             this.licenseplate = new Emgu.CV.UI.ImageBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.button2 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.fingerprint)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.webcama)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.licenseplate)).BeginInit();
@@ -111,7 +113,7 @@
             // 
             this.close.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.close.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.close.Location = new System.Drawing.Point(577, 430);
+            this.close.Location = new System.Drawing.Point(810, 420);
             this.close.Name = "close";
             this.close.Size = new System.Drawing.Size(130, 44);
             this.close.TabIndex = 7;
@@ -154,7 +156,7 @@
             this.webcama.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.webcama.Location = new System.Drawing.Point(301, 44);
             this.webcama.Name = "webcama";
-            this.webcama.Size = new System.Drawing.Size(640, 380);
+            this.webcama.Size = new System.Drawing.Size(640, 360);
             this.webcama.TabIndex = 12;
             this.webcama.TabStop = false;
             // 
@@ -188,11 +190,35 @@
             this.licenseplate.TabIndex = 2;
             this.licenseplate.TabStop = false;
             // 
+            // button1
+            // 
+            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F);
+            this.button1.Location = new System.Drawing.Point(444, 420);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(130, 44);
+            this.button1.TabIndex = 15;
+            this.button1.Text = "referral";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // button2
+            // 
+            this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 14.25F);
+            this.button2.Location = new System.Drawing.Point(301, 420);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(130, 44);
+            this.button2.TabIndex = 15;
+            this.button2.Text = "owner";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // verification
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(952, 677);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.licenseplate);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.label7);
@@ -236,6 +262,8 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label label8;
         public Emgu.CV.UI.ImageBox licenseplate;
+        public System.Windows.Forms.Button button1;
+        public System.Windows.Forms.Button button2;
     }
 }
 

@@ -26,6 +26,7 @@ namespace finaltesting
     {
         private DPFP.Capture.Capture Capturer;
 		public bool check = false;
+        public int who = 0;
 
         public verification()
         {
@@ -228,6 +229,16 @@ namespace finaltesting
         private void verification_FormClosed(object sender, FormClosedEventArgs e)
         {
             Stop();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            who = 1;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            who = 2;
         }
     }
 }

@@ -66,258 +66,636 @@ namespace finaltesting
 			webcama.Image = bit;
 		}
 
-        protected override void Process(DPFP.Sample Sample) //Processing and comparing of scanned fingerprint and stored fingerprint
+        protected override void Process(DPFP.Sample Sample)
         {
-            con.Open();
-            MySqlCommand comm = new MySqlCommand("Select * from parkingdetail", con);
-            MySqlDataAdapter adp = new MySqlDataAdapter(comm);
-            DataTable dt = new DataTable();
-            adp.Fill(dt);
-            con.Close();
-            DataTable result_ = dt;// database handler class for CRUD operations
-
-            foreach (DataRow dr in result_.Rows)
+            if(who == 1)
             {
+                con.Open();
+                MySqlCommand comm = new MySqlCommand("Select * from parkingdetail", con);
+                MySqlDataAdapter adp = new MySqlDataAdapter(comm);
+                DataTable dt = new DataTable();
+                adp.Fill(dt);
+                con.Close();
+                DataTable result_ = dt;
 
-                byte[] _img_ = (byte[])dr["fingerprint"];
-                MemoryStream ms = new MemoryStream(_img_);
-
-                DPFP.Template Template = new DPFP.Template();
-
-                Template.DeSerialize(ms);
-
-                DPFP.Verification.Verification Verificator = new DPFP.Verification.Verification();
-
-                base.Process(Sample);
-
-                DPFP.FeatureSet features = ExtractFeatures(Sample, DPFP.Processing.DataPurpose.Verification);
-                if (features != null)
+                foreach (DataRow dr in result_.Rows)
                 {
-                    DPFP.Verification.Verification.Result result = new DPFP.Verification.Verification.Result();
-                    Verificator.Verify(features, Template, ref result);
-                    UpdateStatus(result.FARAchieved);
-                    if (result.Verified)
+
+                    byte[] _img_ = (byte[])dr["fingerprint"];
+                    MemoryStream ms = new MemoryStream(_img_);
+
+                    DPFP.Template Template = new DPFP.Template();
+
+                    Template.DeSerialize(ms);
+
+                    DPFP.Verification.Verification Verificator = new DPFP.Verification.Verification();
+
+                    base.Process(Sample);
+
+                    DPFP.FeatureSet features = ExtractFeatures(Sample, DPFP.Processing.DataPurpose.Verification);
+                    if (features != null)
                     {
-                        int trylang = (int)dr["regid"];
-                        string name = (string)dr["fullname"];
-                        string licplt = (string)dr["licenseplate"];
-                        string stat = (string)dr["employment"];
-                        string wat = (string)dr["status"];
-						string clas = (string)dr["plateclass"];
-
-						#region LICENSE PLATE RECOGNITION CODE
-
-						passing();
-
-						FileStream Fs = new FileStream(Application.StartupPath + @"\1d.jpg", FileMode.Open, FileAccess.Read);
-						Image tmp = Image.FromStream(Fs);
-						Fs.Close();
-						Bitmap pictkn = new Bitmap(tmp);
-
-						Mat cropped = new Mat();
-						Image<Bgr, byte> origni = new Image<Bgr, byte>(pictkn);
-
-						Mat ORIG = origni.Mat;
-						Image<Gray, byte> wow = new Image<Gray, byte>(pictkn);
-
-                        Mat otsus = new Mat();
-                        CvInvoke.Threshold(wow, otsus, 0, 255, ThresholdType.Otsu);
-
-						List<RotatedRect> boxList = new List<RotatedRect>();
-						using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
+                        DPFP.Verification.Verification.Result result = new DPFP.Verification.Verification.Result();
+                        Verificator.Verify(features, Template, ref result);
+                        UpdateStatus(result.FARAchieved);
+                        if (result.Verified)
                         {
-                            CvInvoke.FindContours(otsus, contours, null, RetrType.Tree, ChainApproxMethod.ChainApproxSimple);
-                            int count = contours.Size;
+                            int trylang = (int)dr["regid"];
+                            string name = (string)dr["fullname"];
+                            string licplt = (string)dr["licenseplate"];
+                            string stat = (string)dr["employment"];
+                            string wat = (string)dr["status"];
+                            string clas = (string)dr["plateclass"];
 
-                            for (int i = 0; i < count; i++)
+                            #region LICENSE PLATE RECOGNITION CODE
+
+                            passing();
+
+                            FileStream Fs = new FileStream(Application.StartupPath + @"\1d.jpg", FileMode.Open, FileAccess.Read);
+                            Image tmp = Image.FromStream(Fs);
+                            Fs.Close();
+                            Bitmap pictkn = new Bitmap(tmp);
+
+                            Mat cropped = new Mat();
+                            Image<Bgr, byte> origni = new Image<Bgr, byte>(pictkn);
+
+                            Mat ORIG = origni.Mat;
+                            Image<Gray, byte> wow = new Image<Gray, byte>(pictkn);
+
+                            Mat otsus = new Mat();
+                            CvInvoke.Threshold(wow, otsus, 0, 255, ThresholdType.Otsu);
+
+                            List<RotatedRect> boxList = new List<RotatedRect>();
+                            using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
                             {
-                                using (VectorOfPoint contour = contours[i]) using (VectorOfPoint approxContour = new VectorOfPoint())
+                                CvInvoke.FindContours(otsus, contours, null, RetrType.Tree, ChainApproxMethod.ChainApproxSimple);
+                                int count = contours.Size;
+
+                                for (int i = 0; i < count; i++)
                                 {
-                                    CvInvoke.ApproxPolyDP(contour, approxContour, 3, true);
-                                    Rectangle rectangle = CvInvoke.BoundingRectangle(approxContour);
-                                    float h = rectangle.Size.Height;
-                                    float w = rectangle.Size.Width; float wid, hei, area;
-                                    area = w * h;
-                                    wid = w / h;
-                                    hei = h / w;
-                                    if ((hei > 0.2 && hei < 0.6) && (wid > 1.2 && wid < 3.0) && area > 3000)
+                                    using (VectorOfPoint contour = contours[i]) using (VectorOfPoint approxContour = new VectorOfPoint())
                                     {
-                                        boxList.Add(CvInvoke.MinAreaRect(approxContour));
-                                        cropped = new Mat(ORIG, rectangle);
-										cropped.Save("trynato.jpg");
+                                        CvInvoke.ApproxPolyDP(contour, approxContour, 3, true);
+                                        Rectangle rectangle = CvInvoke.BoundingRectangle(approxContour);
+                                        float h = rectangle.Size.Height;
+                                        float w = rectangle.Size.Width; float wid, hei, area;
+                                        area = w * h;
+                                        wid = w / h;
+                                        hei = h / w;
+                                        if ((hei > 0.2 && hei < 0.6) && (wid > 1.2 && wid < 3.0) && area > 3000)
+                                        {
+                                            boxList.Add(CvInvoke.MinAreaRect(approxContour));
+                                            cropped = new Mat(ORIG, rectangle);
+                                            cropped.Save("trynato.jpg");
+                                        }
                                     }
                                 }
                             }
+
+                            licenseplate.Image = cropped;
+
+                            #endregion
+
+                            if (clas == "NEW")
+                            {
+                                Mat graychar = new Mat();
+                                CvInvoke.CvtColor(cropped, graychar, ColorConversion.Bgr2Gray);
+                                Mat adapt = new Mat();
+                                CvInvoke.AdaptiveThreshold(graychar, adapt, 255, AdaptiveThresholdType.GaussianC, ThresholdType.Binary, 35, 9);
+                                Mat structElem = new Mat();
+                                structElem = CvInvoke.GetStructuringElement(ElementShape.Rectangle, new Size(3, 3), new Point(-1, -1));
+                                Mat dilation = new Mat();
+                                CvInvoke.MorphologyEx(adapt, dilation, MorphOp.Dilate, structElem, new Point(-1, 1), 1, BorderType.Default, new MCvScalar());
+                                Mat close = new Mat();
+                                CvInvoke.MorphologyEx(dilation, close, MorphOp.Close, structElem, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
+                                Mat closeotsu = new Mat();
+                                CvInvoke.Threshold(close, closeotsu, 0, 255, ThresholdType.Otsu);
+                                Mat cerode = new Mat();
+                                CvInvoke.MorphologyEx(closeotsu, cerode, MorphOp.Erode, structElem, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
+
+                                cerode.Save("nn.jpg");
+                                FileStream fs = new FileStream(Application.StartupPath + @"\nn.jpg", FileMode.Open, FileAccess.Read);
+                                Image tempe = Image.FromStream(fs);
+                                fs.Close();
+                                Bitmap imgnew = new Bitmap(tempe);
+
+                                var img = new Bitmap(imgnew);
+                                var ocr = new TesseractEngine("./tessdata", "eng", EngineMode.Default);
+                                var pagenew = ocr.Process(img);
+
+                                int count = 0;
+
+                                string newplt = pagenew.GetText();
+                                char[] checknew = newplt.ToCharArray();
+                                char[] dbnewplt = licplt.ToCharArray();
+
+                                foreach (char i in checknew)
+                                {
+                                    foreach (char c in dbnewplt)
+                                    {
+                                        if (i == c)
+                                        {
+                                            count++;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (count > 3)
+                                {
+                                    if (stat == "STUDENT")
+                                    {
+                                        if (wat == "Not Parked")
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkstud = parkstud - 1;
+                                            UpdateParkSpaceS(parkstud.ToString());
+                                            MessageBox.Show("Hello " + name + ", Welcome to the Ateneo Parking lot!");
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkstud = parkstud + 1;
+                                            UpdateParkSpaceS(parkstud.ToString());
+                                            MessageBox.Show("Good bye " + name + ", have a safe trip!");
+                                        }
+
+                                        SetLP(licplt);
+
+                                        //MessageBox.Show("Verified");
+                                    }
+                                    if (stat == "EMPLOYEE")
+                                    {
+                                        if (wat == "Not Parked")
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkemp = parkemp - 1;
+                                            UpdateParkSpaceE(parkemp.ToString());
+
+                                            MessageBox.Show("Hello " + name + ", Welcome to the Ateneo Parking lot!");
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkemp = parkemp + 1;
+                                            UpdateParkSpaceE(parkemp.ToString());
+                                            MessageBox.Show("Good bye " + name + ", have a safe trip!");
+                                        }
+
+                                        SetLP(licplt);
+                                        break;
+                                    }
+
+
+                                }
+                                else
+                                {
+                                    MessageBox.Show("SORRY THE PLATE DOES NOT MATCH!");
+                                    break;
+                                }
+                            }
+
+                            if (clas == "OLD")
+                            {
+                                Mat grayplate = new Mat();
+                                CvInvoke.CvtColor(cropped, grayplate, ColorConversion.Bgr2Gray);
+
+                                Mat otsu = new Mat();
+                                CvInvoke.Threshold(grayplate, otsu, 0, 255, ThresholdType.Otsu);
+
+                                Mat canny = new Mat();
+                                CvInvoke.Canny(otsu, canny, 100, 50, 3, false);
+
+                                otsu.Save("oo.jpg");
+                                FileStream FS = new FileStream(Application.StartupPath + @"\oo.jpg", FileMode.Open, FileAccess.Read);
+                                Image temp = Image.FromStream(FS);
+                                FS.Close();
+                                Bitmap imgold = new Bitmap(temp);
+
+                                var img = new Bitmap(imgold);
+                                var ocr = new TesseractEngine("./tessdata", "eng", EngineMode.Default);
+                                var pageold = ocr.Process(img);
+
+                                int count = 0;
+
+                                string oldplt = pageold.GetText();
+                                char[] checkold = oldplt.ToCharArray();
+                                char[] dboldplt = licplt.ToCharArray();
+
+                                foreach (char i in checkold)
+                                {
+                                    foreach (char c in dboldplt)
+                                    {
+                                        if (i == c)
+                                        {
+                                            count++;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (count > 3)
+                                {
+                                    if (stat == "STUDENT")
+                                    {
+                                        if (wat == "Not Parked")
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkstud = parkstud - 1;
+                                            UpdateParkSpaceS(parkstud.ToString());
+                                            MessageBox.Show("Hello " + name + ", Welcome to the Ateneo Parking lot!");
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkstud = parkstud + 1;
+                                            UpdateParkSpaceS(parkstud.ToString());
+                                            MessageBox.Show("Good bye " + name + ", have a safe trip!");
+                                        }
+
+                                        SetLP(licplt);
+
+                                    }
+                                    if (stat == "EMPLOYEE")
+                                    {
+                                        if (wat == "Not Parked")
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkemp = parkemp - 1;
+                                            UpdateParkSpaceE(parkemp.ToString());
+
+                                            MessageBox.Show("Hello " + name + ", Welcome to the Ateneo Parking lot!");
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkemp = parkemp + 1;
+                                            UpdateParkSpaceE(parkemp.ToString());
+                                            MessageBox.Show("Good bye " + name + ", have a safe trip!");
+                                        }
+
+                                        SetLP(licplt);
+                                        break;
+
+                                    }
+
+                                }
+                                else
+                                {
+                                    MessageBox.Show("SORRY THE PLATE DOES NOT MATCH!");
+                                    break;
+                                }
+                            }
                         }
-
-						licenseplate.Image = cropped;
-
-						#endregion
-						if (clas == "NEW")
-						{
-							Mat graychar = new Mat();
-							CvInvoke.CvtColor(cropped, graychar, ColorConversion.Bgr2Gray);
-							Mat adapt = new Mat();
-							CvInvoke.AdaptiveThreshold(graychar, adapt, 255, AdaptiveThresholdType.GaussianC, ThresholdType.Binary, 35, 9);
-							Mat structElem = new Mat();
-							structElem = CvInvoke.GetStructuringElement(ElementShape.Rectangle, new Size(3, 3), new Point(-1, -1));
-							Mat dilation = new Mat();
-							CvInvoke.MorphologyEx(adapt, dilation, MorphOp.Dilate, structElem, new Point(-1, 1), 1, BorderType.Default, new MCvScalar());
-							Mat close = new Mat();
-							CvInvoke.MorphologyEx(dilation, close, MorphOp.Close, structElem, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
-							Mat closeotsu = new Mat();
-							CvInvoke.Threshold(close, closeotsu, 0, 255, ThresholdType.Otsu);
-							Mat cerode = new Mat();
-							CvInvoke.MorphologyEx(closeotsu, cerode, MorphOp.Erode, structElem, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
-
-							cerode.Save("nn.jpg");
-							FileStream fs = new FileStream(Application.StartupPath + @"\nn.jpg", FileMode.Open, FileAccess.Read);
-							Image tempe = Image.FromStream(fs);
-							fs.Close();
-							Bitmap imgnew = new Bitmap(tempe);
-
-							var img = new Bitmap(imgnew);
-							var ocr = new TesseractEngine("./tessdata", "eng", EngineMode.Default);
-							var pagenew = ocr.Process(img);
-
-							int count = 0;
-
-							string newplt = pagenew.GetText();
-							char[] checknew = newplt.ToCharArray();
-							char[] dbnewplt = licplt.ToCharArray();
-
-							foreach (char i in checknew) {
-								foreach (char c in dbnewplt) {
-									if (i == c) {
-										count++;
-										break;
-									}
-								}
-							}
-							if (count < 3)
-							{
-                                if(stat == "STUDENT")
-                                {
-                                    if (wat == "Not Parked")
-                                    {
-                                        MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + trylang + ";", con);
-
-                                        con.Open(); cmd.ExecuteNonQuery();
-                                        con.Close();
-
-                                        parkstud = parkstud - 1;
-                                        UpdateParkSpaceS(parkstud.ToString());
-                                        MessageBox.Show("Hello " + name + ", Welcome to the Ateneo Parking lot!");
-                                    }
-                                    else
-                                    {
-                                        MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + trylang + ";", con);
-
-                                        con.Open(); cmd.ExecuteNonQuery();
-                                        con.Close();
-
-                                        parkstud = parkstud + 1;
-                                        UpdateParkSpaceS(parkstud.ToString());
-                                        MessageBox.Show("Good bye " + name + ", have a safe trip!");
-                                    }
-
-                                    SetLP(licplt);
-                                    
-                                    //MessageBox.Show("Verified");
-                                }
-                                if(stat == "EMPLOYEE")
-                                {
-                                    if (wat == "Not Parked")
-                                    {
-                                        MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + trylang + ";", con);
-
-                                        con.Open(); cmd.ExecuteNonQuery();
-                                        con.Close();
-
-                                        parkemp = parkemp - 1;
-                                        UpdateParkSpaceE(parkemp.ToString());
-
-                                        MessageBox.Show("Hello " + name + ", Welcome to the Ateneo Parking lot!");
-                                    }
-                                    else
-                                    {
-                                        MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + trylang + ";", con);
-
-                                        con.Open(); cmd.ExecuteNonQuery();
-                                        con.Close();
-
-                                        parkemp = parkemp + 1;
-                                        UpdateParkSpaceE(parkemp.ToString());
-                                        MessageBox.Show("Good bye " + name + ", have a safe trip!");
-                                    }
-
-                                    SetLP(licplt);
-                                    //MessageBox.Show("Verified");
-                                }
-
-
-							}
-							else
-							{
-								MessageBox.Show("SORRY THE PLATE DOES NOT MATCH!");
-							}
-						}
-
-						if(clas == "OLD")
-						{
-							Mat grayplate = new Mat();
-							CvInvoke.CvtColor(cropped, grayplate, ColorConversion.Bgr2Gray);
-
-							Mat otsu = new Mat();
-							CvInvoke.Threshold(grayplate, otsu, 0, 255, ThresholdType.Otsu);
-
-							Mat canny = new Mat();
-							CvInvoke.Canny(otsu, canny, 100, 50, 3, false);
-
-							otsu.Save("oo.jpg");
-							FileStream FS = new FileStream(Application.StartupPath + @"\oo.jpg", FileMode.Open, FileAccess.Read);
-							Image temp = Image.FromStream(FS);
-							FS.Close();
-							Bitmap imgold = new Bitmap(temp);
-
-							var img = new Bitmap(imgold);
-							var ocr = new TesseractEngine("./tessdata", "eng", EngineMode.Default);
-							var pageold = ocr.Process(img);
-
-							int count = 0;
-
-							string oldplt = pageold.GetText();
-							char[] checkold = oldplt.ToCharArray();
-							char[] dboldplt = licplt.ToCharArray();
-
-							foreach (char i in checkold)
-							{
-								foreach (char c in dboldplt)
-								{
-									if (i == c)
-									{
-										count++;
-										break;
-									}
-								}
-							}
-							if (count > 3)
-							{
-
-								SetLP(licplt);
-
-								MessageBox.Show(trylang.ToString() + ", Hello " + name + " Welcome");
-								MessageBox.Show("Verified");
-
-							}
-							else
-							{
-								MessageBox.Show("SORRY THE PLATE DOES NOT MATCH!");
-							}
-						}
                     }
                 }
             }
+
+            if(who == 2)
+            {
+                con.Open();
+                MySqlCommand comm = new MySqlCommand("SELECT  rf.referfinger as referfinger, rf.refid as refid, rf.refername as refername, pd.licenseplate as licenseplate, rf.employment as employment, rf.status as status, pd.plateclass as plateclass FROM parkingthesis.parkingdetail pd LEFT JOIN referral rf ON pd.regid = rf.regisid;", con);
+                MySqlDataAdapter adp = new MySqlDataAdapter(comm);
+                DataTable dt = new DataTable();
+                adp.Fill(dt);
+                con.Close();
+                DataTable result_ = dt;
+
+                foreach (DataRow dr in result_.Rows)
+                {
+
+                    byte[] _imge_ = (byte[])dr["referfinger"];
+                    MemoryStream ms = new MemoryStream(_imge_);
+
+                    DPFP.Template Template = new DPFP.Template();
+
+                    Template.DeSerialize(ms);
+
+                    DPFP.Verification.Verification Verificator = new DPFP.Verification.Verification();
+
+                    base.Process(Sample);
+
+                    DPFP.FeatureSet features = ExtractFeatures(Sample, DPFP.Processing.DataPurpose.Verification);
+                    if (features != null)
+                    {
+                        DPFP.Verification.Verification.Result result = new DPFP.Verification.Verification.Result();
+                        Verificator.Verify(features, Template, ref result);
+                        UpdateStatus(result.FARAchieved);
+                        if (result.Verified)
+                        {
+                            int rtry = (int)dr["refid"];
+                            string rnem = (string)dr["refername"];
+                            string licplat = (string)dr["licenseplate"];
+                            string rsat = (string)dr["employment"];
+                            string rwho = (string)dr["status"];
+                            string rclass = (string)dr["plateclass"];
+
+                            #region LICENSE PLATE RECOGNITION CODE
+
+                            passing();
+
+                            FileStream Fs = new FileStream(Application.StartupPath + @"\1d.jpg", FileMode.Open, FileAccess.Read);
+                            Image tmp = Image.FromStream(Fs);
+                            Fs.Close();
+                            Bitmap pictkn = new Bitmap(tmp);
+
+                            Mat cropped = new Mat();
+                            Image<Bgr, byte> origni = new Image<Bgr, byte>(pictkn);
+
+                            Mat ORIG = origni.Mat;
+                            Image<Gray, byte> wow = new Image<Gray, byte>(pictkn);
+
+                            Mat otsus = new Mat();
+                            CvInvoke.Threshold(wow, otsus, 0, 255, ThresholdType.Otsu);
+
+                            List<RotatedRect> boxList = new List<RotatedRect>();
+                            using (VectorOfVectorOfPoint contours = new VectorOfVectorOfPoint())
+                            {
+                                CvInvoke.FindContours(otsus, contours, null, RetrType.Tree, ChainApproxMethod.ChainApproxSimple);
+                                int count = contours.Size;
+
+                                for (int i = 0; i < count; i++)
+                                {
+                                    using (VectorOfPoint contour = contours[i]) using (VectorOfPoint approxContour = new VectorOfPoint())
+                                    {
+                                        CvInvoke.ApproxPolyDP(contour, approxContour, 3, true);
+                                        Rectangle rectangle = CvInvoke.BoundingRectangle(approxContour);
+                                        float h = rectangle.Size.Height;
+                                        float w = rectangle.Size.Width; float wid, hei, area;
+                                        area = w * h;
+                                        wid = w / h;
+                                        hei = h / w;
+                                        if ((hei > 0.2 && hei < 0.6) && (wid > 1.2 && wid < 3.0) && area > 3000)
+                                        {
+                                            boxList.Add(CvInvoke.MinAreaRect(approxContour));
+                                            cropped = new Mat(ORIG, rectangle);
+                                            cropped.Save("trynato.jpg");
+                                        }
+                                    }
+                                }
+                            }
+
+                            licenseplate.Image = cropped;
+
+                            #endregion
+
+                            if (rclass == "NEW")
+                            {
+                                Mat graychar = new Mat();
+                                CvInvoke.CvtColor(cropped, graychar, ColorConversion.Bgr2Gray);
+                                Mat adapt = new Mat();
+                                CvInvoke.AdaptiveThreshold(graychar, adapt, 255, AdaptiveThresholdType.GaussianC, ThresholdType.Binary, 35, 9);
+                                Mat structElem = new Mat();
+                                structElem = CvInvoke.GetStructuringElement(ElementShape.Rectangle, new Size(3, 3), new Point(-1, -1));
+                                Mat dilation = new Mat();
+                                CvInvoke.MorphologyEx(adapt, dilation, MorphOp.Dilate, structElem, new Point(-1, 1), 1, BorderType.Default, new MCvScalar());
+                                Mat close = new Mat();
+                                CvInvoke.MorphologyEx(dilation, close, MorphOp.Close, structElem, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
+                                Mat closeotsu = new Mat();
+                                CvInvoke.Threshold(close, closeotsu, 0, 255, ThresholdType.Otsu);
+                                Mat cerode = new Mat();
+                                CvInvoke.MorphologyEx(closeotsu, cerode, MorphOp.Erode, structElem, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
+
+                                cerode.Save("WAT.jpg");
+                                FileStream fs = new FileStream(Application.StartupPath + @"\WAT.jpg", FileMode.Open, FileAccess.Read);
+                                Image tempe = Image.FromStream(fs);
+                                fs.Close();
+                                Bitmap imgnew = new Bitmap(tempe);
+
+                                var img = new Bitmap(imgnew);
+                                var ocr = new TesseractEngine("./tessdata", "eng", EngineMode.Default);
+                                var pagenew = ocr.Process(img);
+
+                                int count = 0;
+
+                                string newplt = pagenew.GetText();
+                                char[] checknew = newplt.ToCharArray();
+                                char[] dbnewplt = licplat.ToCharArray();
+
+                                foreach (char i in checknew)
+                                {
+                                    foreach (char c in dbnewplt)
+                                    {
+                                        if (i == c)
+                                        {
+                                            count++;
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                if (count > 3)
+                                {
+                                    if (rsat == "STUDENT")
+                                    {
+                                        if (rwho == "Not Parked")
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + rtry + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkstud = parkstud - 1;
+                                            UpdateParkSpaceS(parkstud.ToString());
+                                            MessageBox.Show("Hello " + rnem + ", Welcome to the Ateneo Parking lot!");
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + rtry + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkstud = parkstud + 1;
+                                            UpdateParkSpaceS(parkstud.ToString());
+                                            MessageBox.Show("Good bye " + rnem + ", have a safe trip!");
+                                        }
+
+                                        SetLP(licplat);
+                                        break;
+                                    }
+                                    if (rsat == "EMPLOYEE")
+                                    {
+                                        if (rwho == "Not Parked")
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + rtry + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkemp = parkemp - 1;
+                                            UpdateParkSpaceE(parkemp.ToString());
+
+                                            MessageBox.Show("Hello " + rnem + ", Welcome to the Ateneo Parking lot!");
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + rtry + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkemp = parkemp + 1;
+                                            UpdateParkSpaceE(parkemp.ToString());
+                                            MessageBox.Show("Good bye " + rnem + ", have a safe trip!");
+                                        }
+
+                                        SetLP(licplat);
+                                        break;
+                                    }
+
+
+                                }
+                                else
+                                {
+                                    MessageBox.Show("SORRY THE PLATE DOES NOT MATCH!");
+                                    break;
+                                }
+                            }
+
+                            if (rclass == "OLD")
+                            {
+                                Mat grayplate = new Mat();
+                                CvInvoke.CvtColor(cropped, grayplate, ColorConversion.Bgr2Gray);
+
+                                Mat otsu = new Mat();
+                                CvInvoke.Threshold(grayplate, otsu, 0, 255, ThresholdType.Otsu);
+
+                                Mat canny = new Mat();
+                                CvInvoke.Canny(otsu, canny, 100, 50, 3, false);
+
+                                otsu.Save("oo.jpg");
+                                FileStream FS = new FileStream(Application.StartupPath + @"\oo.jpg", FileMode.Open, FileAccess.Read);
+                                Image temp = Image.FromStream(FS);
+                                FS.Close();
+                                Bitmap imgold = new Bitmap(temp);
+
+                                var img = new Bitmap(imgold);
+                                var ocr = new TesseractEngine("./tessdata", "eng", EngineMode.Default);
+                                var pageold = ocr.Process(img);
+
+                                int count = 0;
+
+                                string oldplt = pageold.GetText();
+                                char[] checkold = oldplt.ToCharArray();
+                                char[] dboldplt = licplat.ToCharArray();
+
+                                foreach (char i in checkold)
+                                {
+                                    foreach (char c in dboldplt)
+                                    {
+                                        if (i == c)
+                                        {
+                                            count++;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (count > 3)
+                                {
+                                    if (rsat == "STUDENT")
+                                    {
+                                        if (rwho == "Not Parked")
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + rtry + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkstud = parkstud - 1;
+                                            UpdateParkSpaceS(parkstud.ToString());
+                                            MessageBox.Show("Hello " + rnem + ", Welcome to the Ateneo Parking lot!");
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + rtry + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkstud = parkstud + 1;
+                                            UpdateParkSpaceS(parkstud.ToString());
+                                            MessageBox.Show("Good bye " + rnem + ", have a safe trip!");
+                                        }
+
+                                        SetLP(licplat);
+                                        break;
+
+                                    }
+                                    if (rsat == "EMPLOYEE")
+                                    {
+                                        if (rwho == "Not Parked")
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + rtry + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkemp = parkemp - 1;
+                                            UpdateParkSpaceE(parkemp.ToString());
+
+                                            MessageBox.Show("Hello " + rnem + ", Welcome to the Ateneo Parking lot!");
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + rtry + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkemp = parkemp + 1;
+                                            UpdateParkSpaceE(parkemp.ToString());
+                                            MessageBox.Show("Good bye " + rnem + ", have a safe trip!");
+                                        }
+
+                                        SetLP(licplat);
+                                        break;
+
+                                    }
+
+                                }
+                                else
+                                {
+                                    MessageBox.Show("SORRY THE PLATE DOES NOT MATCH!");
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
         }
         
         private void SetLP(string licenseplate) //to display extracted text from license plate
