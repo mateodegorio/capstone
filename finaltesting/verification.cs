@@ -28,10 +28,40 @@ namespace finaltesting
 		public bool check = false;
         public int who = 0;
 
+        Timer TIMM = new Timer();
+
         public verification()
         {
             InitializeComponent();
+
+            TIMM.Tick += new EventHandler(TIMM_Tick);
+
+            this.TIMM.Interval = 5000;
+
+            this.TIMM.Enabled = true;
         }
+
+
+        private void TIMM_Tick(object sender, EventArgs e)
+        {
+
+            MySqlConnection con = new MySqlConnection("Server=localhost; Database=parkingthesis; Uid=root; Pwd = Fave0406;");
+
+            string query = "select username as NAME,logdate as TIMESTAMP,usertype as EMPLOYMENT,logdet as STATUS from logbook order by logid desc;";
+
+            using (MySqlDataAdapter adpt = new MySqlDataAdapter(query, con))
+            {
+
+                DataSet dset = new DataSet();
+
+                adpt.Fill(dset);
+
+                dataGridView1.DataSource = dset.Tables[0];
+
+            }
+            con.Close();
+        }
+
 
         protected virtual void Init()
         {
@@ -200,6 +230,7 @@ namespace finaltesting
 
 		protected void passing()
 		{
+
 			Invoke(new Action(() =>
 			{
 				using (Bitmap bmp = new Bitmap(webcama.ClientSize.Width,
@@ -240,5 +271,6 @@ namespace finaltesting
         {
             who = 2;
         }
+
     }
 }

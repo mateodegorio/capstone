@@ -26,7 +26,7 @@ namespace finaltesting
 {
 	class savetananforfutureuse
 	{
-		/*
+        /*
 		#region pre-processing methods for detected license plate
 
 
@@ -66,11 +66,11 @@ licenseplate.Image.Save("bb.png");
 			fs.Close();
 			Bitmap tryo = new Bitmap(temp);*/
 
-		//wow = GetText(tryo);
-		//SetLP(wow);
-		// duh = true;
+        //wow = GetText(tryo);
+        //SetLP(wow);
+        // duh = true;
 
-		/*#region CHARACTER SEGMENTATION CODE
+        /*#region CHARACTER SEGMENTATION CODE
 
 
 		float pn_area = cropped.Size.Width * cropped.Size.Height;
@@ -103,6 +103,115 @@ licenseplate.Image.Save("bb.png");
 				}
 			}
 		}
+                                            if (stat == "STUDENT")
+                                    {
+                                        if (wat == "Not Parked")
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkstud = parkstud - 1;
+                                            UpdateParkSpaceS(parkstud.ToString());
+                                            MessageBox.Show("Hello " + name + ", Welcome to the Ateneo Parking lot!");
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkstud = parkstud + 1;
+                                            UpdateParkSpaceS(parkstud.ToString());
+                                            MessageBox.Show("Good bye " + name + ", have a safe trip!");
+                                        }
+
+                                        SetLP(licplt);
+
+                                        //MessageBox.Show("Verified");
+                                    }
+                                    if (stat == "EMPLOYEE")
+                                    {
+                                        if (wat == "Not Parked")
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkemp = parkemp - 1;
+                                            UpdateParkSpaceE(parkemp.ToString());
+
+                                            MessageBox.Show("Hello " + name + ", Welcome to the Ateneo Parking lot!");
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkemp = parkemp + 1;
+                                            UpdateParkSpaceE(parkemp.ToString());
+                                            MessageBox.Show("Good bye " + name + ", have a safe trip!");
+                                        }
+                                    if (stat == "STUDENT")
+                                    {
+                                        if (wat == "Not Parked")
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkstud = parkstud - 1;
+                                            UpdateParkSpaceS(parkstud.ToString());
+                                            MessageBox.Show("Hello " + name + ", Welcome to the Ateneo Parking lot!");
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkstud = parkstud + 1;
+                                            UpdateParkSpaceS(parkstud.ToString());
+                                            MessageBox.Show("Good bye " + name + ", have a safe trip!");
+                                        }
+                                    }
+                                    if (stat == "EMPLOYEE")
+                                    {
+                                        if (wat == "Not Parked")
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkemp = parkemp - 1;
+                                            UpdateParkSpaceE(parkemp.ToString());
+
+                                            MessageBox.Show("Hello " + name + ", Welcome to the Ateneo Parking lot!");
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmd = new MySqlCommand("UPDATE parkingdetail SET status = 'Not Parked' WHERE regid = " + trylang + ";", con);
+
+                                            con.Open(); cmd.ExecuteNonQuery();
+                                            con.Close();
+
+                                            parkemp = parkemp + 1;
+                                            UpdateParkSpaceE(parkemp.ToString());
+                                            MessageBox.Show("Good bye " + name + ", have a safe trip!");
+                                        }
+
+                                        SetLP(licplt);
+                                        break;
+
+                                    }
 		List<string> extracted = new List<string>();
 		for (int i = 0; i < listchar.Count; i++)
 		{
@@ -200,5 +309,5 @@ licenseplate.Image.Save("bb.png");
                         //Mat gray1 = new Mat(str, ImreadModes.Grayscale);
 		}*/
 
-	}
+    }
 }
