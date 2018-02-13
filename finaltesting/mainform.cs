@@ -47,5 +47,9 @@ namespace finaltesting
 
         private DPFP.Template Template;
 
+        private void mainform_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }

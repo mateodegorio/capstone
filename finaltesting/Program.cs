@@ -16,7 +16,7 @@ namespace finaltesting
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new mainform());
+            Application.Run(new mainform()); 
         }
     }
 }

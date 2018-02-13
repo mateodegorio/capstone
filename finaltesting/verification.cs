@@ -24,27 +24,36 @@ namespace finaltesting
 {
     public partial class verification : Form, DPFP.Capture.EventHandler
     {
+        public static MySqlConnection con = new MySqlConnection("Server=localhost; Database=parkingthesis; Uid=root; Pwd = Fave0406;");
+
         private DPFP.Capture.Capture Capturer;
 		public bool check = false;
         public int who = 0;
+        public string date1, date2;
 
-        Timer TIMM = new Timer();
+        public int parkstud = 100;
+        public int parkemp = 50;
+
+        public int inempnum = 0;
+        public int instunum = 0;
+        public int outempnum = 0;
+        public int outstunum = 0;
+
+        public int temp1, temp2;
 
         public verification()
         {
             InitializeComponent();
+            display();
 
-            TIMM.Tick += new EventHandler(TIMM_Tick);
-
-            this.TIMM.Interval = 5000;
-
-            this.TIMM.Enabled = true;
+            DateTime today = DateTime.Now.Date;
+            DateTime tomorrow = today.AddDays(1);
+            date1 = today.ToString("yyyy/MM/dd");
+            date2 = tomorrow.ToString("yyyy/MM/dd");
         }
-
-
-        private void TIMM_Tick(object sender, EventArgs e)
+      
+        private void display()
         {
-
             MySqlConnection con = new MySqlConnection("Server=localhost; Database=parkingthesis; Uid=root; Pwd = Fave0406;");
 
             string query = "select username as NAME,logdate as TIMESTAMP,usertype as EMPLOYMENT,logdet as STATUS from logbook order by logid desc;";
@@ -62,6 +71,82 @@ namespace finaltesting
             con.Close();
         }
 
+        protected void logboook()
+        {
+
+            Invoke(new Action(() =>
+            {
+
+                display();
+
+
+
+                             ///////////////////// GOING IN //////////////////////////////
+                /////////////////////////////////////////////////////////////////// FOR GOING IN EMPLOYEES
+                try
+                {
+                    con.Open();
+                    MySqlCommand comm1 = new MySqlCommand("SELECT COUNT(username) FROM logbook WHERE logdet = 'IN' AND logdate BETWEEN '" + date1 + "' AND '" + date2 + "' AND usertype = 'EMPLOYEE' GROUP BY usertype;", con);
+                    inempnum = Convert.ToInt32(comm1.ExecuteScalar());
+                    con.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                /////////////////////////////////////////////////////////////////// FOR GOING IN STUDENTS
+                try
+                {
+                    con.Open();
+                    MySqlCommand comm2 = new MySqlCommand("SELECT COUNT(username) FROM logbook WHERE logdet = 'IN' AND logdate BETWEEN '" + date1 + "' AND '" + date2 + "' AND usertype = 'STUDENT' GROUP BY usertype;", con);
+                    instunum = Convert.ToInt32(comm2.ExecuteScalar());
+                    con.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                
+
+
+                            //////////////////// GOING OUT //////////////////////////////
+                /////////////////////////////////////////////////////////////////// FOR GOING OUT EMPLOYEES
+                try
+                {
+                    con.Open();
+                    MySqlCommand comm3 = new MySqlCommand("SELECT COUNT(username) FROM logbook WHERE logdet = 'OUT' AND logdate BETWEEN '" + date1 + "' AND '" + date2 + "' AND usertype = 'EMPLOYEE' GROUP BY usertype;", con);
+                    outempnum = Convert.ToInt32(comm3.ExecuteScalar());
+                    con.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                /////////////////////////////////////////////////////////////////// FOR GOING OUT STUDENTS
+                try
+                {
+                    con.Open();
+                    MySqlCommand comm4 = new MySqlCommand("SELECT COUNT(username) FROM logbook WHERE logdet = 'OUT' AND logdate BETWEEN '" + date1 + "' AND '" + date2 + "' AND usertype = 'STUDENT' GROUP BY usertype;", con);
+                    outstunum = Convert.ToInt32(comm4.ExecuteScalar());
+                    con.Close();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+
+                int temp1 = instunum - outstunum;
+                int temp2 = inempnum - outempnum;
+
+                int display1 = parkstud - temp1;
+                int display2 = parkemp - temp2;
+
+                textBox1.Text = Convert.ToString(display1);
+                textBox2.Text = Convert.ToString(display2);
+
+
+            }));
+        }
 
         protected virtual void Init()
         {

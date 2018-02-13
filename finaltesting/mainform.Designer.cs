@@ -104,6 +104,7 @@
             this.Controls.Add(this.groupBox1);
             this.Name = "mainform";
             this.Text = "mainform";
+            this.Load += new System.EventHandler(this.mainform_Load);
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();

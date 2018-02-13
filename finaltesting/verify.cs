@@ -30,15 +30,13 @@ namespace finaltesting
 
         private FilterInfoCollection webcam;
         public VideoCaptureDevice cam;
-
-        public int parkstud = 200;
-        public int parkemp = 100;
+        public string star = "";
 
         public void Verify(DPFP.Template template)
         {
             Template = template;
             ShowDialog();
-			
+
 			if (check == true)
 			{
 				cam.Stop();
@@ -201,25 +199,45 @@ namespace finaltesting
                                     }
                                 }
 
-                                if (count > 3)
+                                if (count < 3)
                                 {
+
+                                    try
+                                    {
+                                        con.Open();
+                                        MySqlCommand cmd = new MySqlCommand("SELECT logdet FROM logbook WHERE username = '" + name + "';", con);
+                                        MySqlDataReader reader = cmd.ExecuteReader();
+
+                                        while (reader.Read())
+                                        {
+                                           star = (string)reader["logdet"];
+                                        }
+                                        con.Close();
+
+                                        if(star == "IN")
+                                        {
+
+                                            MySqlCommand command = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + name + "', now(), '" + stat + "', 'OUT');", con);
+
+                                            con.Open(); command.ExecuteNonQuery();
+                                            con.Close();
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmnd = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + name + "', now(), '" + stat + "', 'IN');", con);
+
+                                            con.Open(); cmnd.ExecuteNonQuery();
+                                            con.Close();
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show(ex.Message);
+                                    }
+
+
+                                    logboook();
                                     SetLP(licplt);
-
-                                    if (wat == "Not Parked")
-                                    {
-
-                                        MySqlCommand cmd = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + name + "', now(), '" + stat + "', 'IN');", con);
-
-                                        con.Open(); cmd.ExecuteNonQuery();
-                                        con.Close();
-                                    }
-                                    else
-                                    {
-                                        MySqlCommand cmd = new MySqlCommand("INSERT INTO logbook(custname, logdate, logdet) VALUES('" + name + "', now(), '" + stat + "', 'OUT');", con);
-
-                                        con.Open(); cmd.ExecuteNonQuery();
-                                        con.Close();
-                                    }
 
                                 }
                                 else
@@ -269,23 +287,42 @@ namespace finaltesting
                                 }
                                 if (count > 3)
                                 {
+                                    try
+                                    {
+                                        con.Open();
+                                        MySqlCommand cmd = new MySqlCommand("SELECT * FROM logbook WHERE username = '" + name + "';", con);
+                                        MySqlDataReader reader = cmd.ExecuteReader();
+
+                                        while (reader.Read())
+                                        {
+                                            star = reader["logdet"].ToString();
+                                        }
+                                        con.Close();
+
+                                        if (star == "IN")
+                                        {
+
+                                            MySqlCommand command = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + name + "', now(), '" + stat + "', 'OUT');", con);
+
+                                            con.Open(); command.ExecuteNonQuery();
+                                            con.Close();
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmnd = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + name + "', now(), '" + stat + "', 'IN');", con);
+
+                                            con.Open(); cmnd.ExecuteNonQuery();
+                                            con.Close();
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show(ex.Message);
+                                    }
+
+
+                                    logboook();
                                     SetLP(licplt);
-
-                                    if (wat == "Not Parked")
-                                    {
-
-                                        MySqlCommand cmd = new MySqlCommand("INSERT INTO logbook(custname, logdate, logdet) VALUES('" + name + "', now(), '" + stat + "', 'IN');", con);
-
-                                        con.Open(); cmd.ExecuteNonQuery();
-                                        con.Close();
-                                    }
-                                    else
-                                    {
-                                        MySqlCommand cmd = new MySqlCommand("INSERT INTO logbook(custname, logdate, logdet) VALUES('" + name + "', now(), '" + stat + "', 'OUT');", con);
-
-                                        con.Open(); cmd.ExecuteNonQuery();
-                                        con.Close();
-                                    }
                                 }
                                 else
                                 {
@@ -433,23 +470,43 @@ namespace finaltesting
 
                                 if (count > 3)
                                 {
-                                    if (rwho == "Not Parked")
+                                    try
                                     {
-                                        SetLP(licplat);
+                                        con.Open();
+                                        MySqlCommand cmd = new MySqlCommand("SELECT * FROM logbook WHERE username = '" + rnem + "';", con);
+                                        MySqlDataReader reader = cmd.ExecuteReader();
 
-                                        MySqlCommand cmd = new MySqlCommand("INSERT INTO logbook(custname, logdate, logdet) VALUES('" + rnem + "', now(), '" + rsat + "', 'IN');", con);
-
-                                        con.Open(); cmd.ExecuteNonQuery();
+                                        while (reader.Read())
+                                        {
+                                            star = reader["logdet"].ToString();
+                                        }
                                         con.Close();
+
+                                        if (star == "IN")
+                                        {
+
+                                            MySqlCommand command = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + rnem + "', now(), '" + rsat + "', 'OUT');", con);
+
+                                            con.Open(); command.ExecuteNonQuery();
+                                            con.Close();
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmnd = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + rnem + "', now(), '" + rsat + "', 'IN');", con);
+
+                                            con.Open(); cmnd.ExecuteNonQuery();
+                                            con.Close();
+                                        }
                                     }
-                                    else
+                                    catch (Exception ex)
                                     {
-                                        SetLP(licplat);
-                                        MySqlCommand cmd = new MySqlCommand("INSERT INTO logbook(custname, logdate, logdet) VALUES('" + rnem + "', now(), '" + rsat + "', 'OUT');", con);
-
-                                        con.Open(); cmd.ExecuteNonQuery();
-                                        con.Close();
+                                        MessageBox.Show(ex.Message);
                                     }
+
+
+                                    logboook();
+                                    SetLP(licplat);
+
                                 }
                                 else
                                 {
@@ -498,24 +555,42 @@ namespace finaltesting
                                 }
                                 if (count > 3)
                                 {
+                                    try
+                                    {
+                                        con.Open();
+                                        MySqlCommand cmd = new MySqlCommand("SELECT * FROM logbook WHERE username = '" + rnem + "';", con);
+                                        MySqlDataReader reader = cmd.ExecuteReader();
+
+                                        while (reader.Read())
+                                        {
+                                            star = reader["logdet"].ToString();
+                                        }
+                                        con.Close();
+
+                                        if (star == "IN")
+                                        {
+
+                                            MySqlCommand command = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + rnem + "', now(), '" + rsat + "', 'OUT');", con);
+
+                                            con.Open(); command.ExecuteNonQuery();
+                                            con.Close();
+                                        }
+                                        else
+                                        {
+                                            MySqlCommand cmnd = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + rnem + "', now(), '" + rsat + "', 'IN');", con);
+
+                                            con.Open(); cmnd.ExecuteNonQuery();
+                                            con.Close();
+                                        }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        MessageBox.Show(ex.Message);
+                                    }
+
+
+                                    logboook();
                                     SetLP(licplat);
-
-                                    if (rwho == "Not Parked")
-                                    {
-                                        SetLP(licplat);
-                                        MySqlCommand cmd = new MySqlCommand("INSERT INTO logbook(custname, logdate, logdet) VALUES('" + rnem + "', now(), '" + rsat + "', 'IN');", con);
-
-                                        con.Open(); cmd.ExecuteNonQuery();
-                                        con.Close();
-                                    }
-                                    else
-                                    {
-                                        SetLP(licplat);
-                                        MySqlCommand cmd = new MySqlCommand("INSERT INTO logbook(custname, logdate, logdet) VALUES('" + rnem + "', now(), '" + rsat + "', 'OUT');", con);
-
-                                        con.Open(); cmd.ExecuteNonQuery();
-                                        con.Close();
-                                    }
                                 }
                                 else
                                 {
