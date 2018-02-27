@@ -108,6 +108,7 @@ namespace finaltesting
                             #region LICENSE PLATE RECOGNITION CODE
 
                             passing();
+                            compute();
 
                             FileStream Fs = new FileStream(Application.StartupPath + @"\1d.jpg", FileMode.Open, FileAccess.Read);
                             Image tmp = Image.FromStream(Fs);
@@ -152,13 +153,188 @@ namespace finaltesting
 
                             licenseplate.Image = cropped;
 
+                            con.Open();
+                            MySqlCommand cmd = new MySqlCommand("SELECT logdet FROM logbook WHERE username = '" + name + "';", con);
+                            MySqlDataReader reader = cmd.ExecuteReader();
+
+                            while (reader.Read())
+                            {
+                                star = (string)reader["logdet"];
+                            }
+                            con.Close();
+
                             #endregion
 
-                            if(stat == "STUDENT")
+                            if (stat == "STUDENT")
                             {
-                                if(chckS == 0 && wat == "Not Parked")
+                                if(chckS == 0)
                                 {
-                                    MessageBox.Show("Sorry but the parking space for students is full!");
+                                    if(star == "IN")
+                                    {
+                                        if (clas == "NEW")
+                                        {
+                                            Mat graychar = new Mat();
+                                            CvInvoke.CvtColor(cropped, graychar, ColorConversion.Bgr2Gray);
+                                            Mat adapt = new Mat();
+                                            CvInvoke.AdaptiveThreshold(graychar, adapt, 255, AdaptiveThresholdType.GaussianC, ThresholdType.Binary, 35, 9);
+                                            Mat structElem = new Mat();
+                                            structElem = CvInvoke.GetStructuringElement(ElementShape.Rectangle, new Size(3, 3), new Point(-1, -1));
+                                            Mat dilation = new Mat();
+                                            CvInvoke.MorphologyEx(adapt, dilation, MorphOp.Dilate, structElem, new Point(-1, 1), 1, BorderType.Default, new MCvScalar());
+                                            Mat close = new Mat();
+                                            CvInvoke.MorphologyEx(dilation, close, MorphOp.Close, structElem, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
+                                            Mat closeotsu = new Mat();
+                                            CvInvoke.Threshold(close, closeotsu, 0, 255, ThresholdType.Otsu);
+                                            Mat cerode = new Mat();
+                                            CvInvoke.MorphologyEx(closeotsu, cerode, MorphOp.Erode, structElem, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
+
+                                            cerode.Save("nn.jpg");
+                                            FileStream fs = new FileStream(Application.StartupPath + @"\nn.jpg", FileMode.Open, FileAccess.Read);
+                                            Image tempe = Image.FromStream(fs);
+                                            fs.Close();
+                                            Bitmap imgnew = new Bitmap(tempe);
+
+                                            var img = new Bitmap(imgnew);
+                                            var ocr = new TesseractEngine("./tessdata", "eng", EngineMode.Default);
+                                            var pagenew = ocr.Process(img);
+
+                                            int count = 0;
+
+                                            string newplt = pagenew.GetText();
+                                            char[] checknew = newplt.ToCharArray();
+                                            char[] dbnewplt = licplt.ToCharArray();
+
+                                            foreach (char i in checknew)
+                                            {
+                                                foreach (char c in dbnewplt)
+                                                {
+                                                    if (i == c)
+                                                    {
+                                                        count++;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            if (count < 3)
+                                            {
+
+                                                try
+                                                {
+
+
+                                                    if (star == "IN")
+                                                    {
+
+                                                        MySqlCommand command = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + name + "', now(), '" + stat + "', 'OUT'); UPDATE parkingdetail SET parkingdetail.status = 'Not Parked' WHERE fullname = '" + name + "';", con);
+
+                                                        con.Open(); command.ExecuteNonQuery();
+                                                        con.Close();
+                                                    }
+                                                    else
+                                                    {
+                                                        MySqlCommand cmnd = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + name + "', now(), '" + stat + "', 'IN'); UPDATE parkingdetail SET parkingdetail.status = 'Parked' WHERE fullname = '" + name + "';", con);
+
+                                                        con.Open(); cmnd.ExecuteNonQuery();
+                                                        con.Close();
+                                                    }
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    MessageBox.Show(ex.Message);
+                                                }
+
+
+                                                logboook();
+                                                SetLP(licplt);
+
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show("SORRY THE PLATE DOES NOT MATCH!");
+                                                break;
+                                            }
+                                        }
+
+                                        if (clas == "OLD")
+                                        {
+                                            Mat grayplate = new Mat();
+                                            CvInvoke.CvtColor(cropped, grayplate, ColorConversion.Bgr2Gray);
+
+                                            Mat otsu = new Mat();
+                                            CvInvoke.Threshold(grayplate, otsu, 0, 255, ThresholdType.Otsu);
+
+                                            Mat canny = new Mat();
+                                            CvInvoke.Canny(otsu, canny, 100, 50, 3, false);
+
+                                            otsu.Save("oo.jpg");
+                                            FileStream FS = new FileStream(Application.StartupPath + @"\oo.jpg", FileMode.Open, FileAccess.Read);
+                                            Image temp = Image.FromStream(FS);
+                                            FS.Close();
+                                            Bitmap imgold = new Bitmap(temp);
+
+                                            var img = new Bitmap(imgold);
+                                            var ocr = new TesseractEngine("./tessdata", "eng", EngineMode.Default);
+                                            var pageold = ocr.Process(img);
+
+                                            int count = 0;
+
+                                            string oldplt = pageold.GetText();
+                                            char[] checkold = oldplt.ToCharArray();
+                                            char[] dboldplt = licplt.ToCharArray();
+
+                                            foreach (char i in checkold)
+                                            {
+                                                foreach (char c in dboldplt)
+                                                {
+                                                    if (i == c)
+                                                    {
+                                                        count++;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            if (count > 3)
+                                            {
+                                                try
+                                                {
+
+                                                    if (star == "IN")
+                                                    {
+
+                                                        MySqlCommand command = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + name + "', now(), '" + stat + "', 'OUT');", con);
+
+                                                        con.Open(); command.ExecuteNonQuery();
+                                                        con.Close();
+                                                    }
+                                                    else
+                                                    {
+                                                        MySqlCommand cmnd = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + name + "', now(), '" + stat + "', 'IN');", con);
+
+                                                        con.Open(); cmnd.ExecuteNonQuery();
+                                                        con.Close();
+                                                    }
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    MessageBox.Show(ex.Message);
+                                                }
+
+
+                                                logboook();
+                                                SetLP(licplt);
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show("SORRY THE PLATE DOES NOT MATCH!");
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("Sorry but the parking space for students is full!");
+                                    }
                                 }
                                 else
                                 {
@@ -213,15 +389,6 @@ namespace finaltesting
 
                                             try
                                             {
-                                                con.Open();
-                                                MySqlCommand cmd = new MySqlCommand("SELECT logdet FROM logbook WHERE username = '" + name + "';", con);
-                                                MySqlDataReader reader = cmd.ExecuteReader();
-
-                                                while (reader.Read())
-                                                {
-                                                    star = (string)reader["logdet"];
-                                                }
-                                                con.Close();
 
                                                 if (star == "IN")
                                                 {
@@ -298,15 +465,6 @@ namespace finaltesting
                                         {
                                             try
                                             {
-                                                con.Open();
-                                                MySqlCommand cmd = new MySqlCommand("SELECT * FROM logbook WHERE username = '" + name + "';", con);
-                                                MySqlDataReader reader = cmd.ExecuteReader();
-
-                                                while (reader.Read())
-                                                {
-                                                    star = reader["logdet"].ToString();
-                                                }
-                                                con.Close();
 
                                                 if (star == "IN")
                                                 {
@@ -343,9 +501,173 @@ namespace finaltesting
                             }
                             else
                             {
-                                if(chckE == 0 && wat == "Not Parked")
+                                if(chckE == 0)
                                 {
-                                    MessageBox.Show("Sorry but the parking space for employees is full!");
+                                    if(star == "IN")
+                                    {
+                                        if (clas == "NEW")
+                                        {
+                                            Mat graychar = new Mat();
+                                            CvInvoke.CvtColor(cropped, graychar, ColorConversion.Bgr2Gray);
+                                            Mat adapt = new Mat();
+                                            CvInvoke.AdaptiveThreshold(graychar, adapt, 255, AdaptiveThresholdType.GaussianC, ThresholdType.Binary, 35, 9);
+                                            Mat structElem = new Mat();
+                                            structElem = CvInvoke.GetStructuringElement(ElementShape.Rectangle, new Size(3, 3), new Point(-1, -1));
+                                            Mat dilation = new Mat();
+                                            CvInvoke.MorphologyEx(adapt, dilation, MorphOp.Dilate, structElem, new Point(-1, 1), 1, BorderType.Default, new MCvScalar());
+                                            Mat close = new Mat();
+                                            CvInvoke.MorphologyEx(dilation, close, MorphOp.Close, structElem, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
+                                            Mat closeotsu = new Mat();
+                                            CvInvoke.Threshold(close, closeotsu, 0, 255, ThresholdType.Otsu);
+                                            Mat cerode = new Mat();
+                                            CvInvoke.MorphologyEx(closeotsu, cerode, MorphOp.Erode, structElem, new Point(-1, -1), 1, BorderType.Default, new MCvScalar());
+
+                                            cerode.Save("nn.jpg");
+                                            FileStream fs = new FileStream(Application.StartupPath + @"\nn.jpg", FileMode.Open, FileAccess.Read);
+                                            Image tempe = Image.FromStream(fs);
+                                            fs.Close();
+                                            Bitmap imgnew = new Bitmap(tempe);
+
+                                            var img = new Bitmap(imgnew);
+                                            var ocr = new TesseractEngine("./tessdata", "eng", EngineMode.Default);
+                                            var pagenew = ocr.Process(img);
+
+                                            int count = 0;
+
+                                            string newplt = pagenew.GetText();
+                                            char[] checknew = newplt.ToCharArray();
+                                            char[] dbnewplt = licplt.ToCharArray();
+
+                                            foreach (char i in checknew)
+                                            {
+                                                foreach (char c in dbnewplt)
+                                                {
+                                                    if (i == c)
+                                                    {
+                                                        count++;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
+                                            if (count < 3)
+                                            {
+
+                                                try
+                                                {
+
+                                                    if (star == "IN")
+                                                    {
+
+                                                        MySqlCommand command = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + name + "', now(), '" + stat + "', 'OUT'); UPDATE parkingdetail SET parkingdetail.status = 'Not Parked' WHERE fullname = '" + name + "';", con);
+
+                                                        con.Open(); command.ExecuteNonQuery();
+                                                        con.Close();
+                                                    }
+                                                    else
+                                                    {
+                                                        MySqlCommand cmnd = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + name + "', now(), '" + stat + "', 'IN'); UPDATE parkingdetail SET parkingdetail.status = 'Parked' WHERE fullname = '" + name + "';", con);
+
+                                                        con.Open(); cmnd.ExecuteNonQuery();
+                                                        con.Close();
+                                                    }
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    MessageBox.Show(ex.Message);
+                                                }
+
+
+                                                logboook();
+                                                SetLP(licplt);
+
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show("SORRY THE PLATE DOES NOT MATCH!");
+                                                break;
+                                            }
+                                        }
+
+                                        if (clas == "OLD")
+                                        {
+                                            Mat grayplate = new Mat();
+                                            CvInvoke.CvtColor(cropped, grayplate, ColorConversion.Bgr2Gray);
+
+                                            Mat otsu = new Mat();
+                                            CvInvoke.Threshold(grayplate, otsu, 0, 255, ThresholdType.Otsu);
+
+                                            Mat canny = new Mat();
+                                            CvInvoke.Canny(otsu, canny, 100, 50, 3, false);
+
+                                            otsu.Save("oo.jpg");
+                                            FileStream FS = new FileStream(Application.StartupPath + @"\oo.jpg", FileMode.Open, FileAccess.Read);
+                                            Image temp = Image.FromStream(FS);
+                                            FS.Close();
+                                            Bitmap imgold = new Bitmap(temp);
+
+                                            var img = new Bitmap(imgold);
+                                            var ocr = new TesseractEngine("./tessdata", "eng", EngineMode.Default);
+                                            var pageold = ocr.Process(img);
+
+                                            int count = 0;
+
+                                            string oldplt = pageold.GetText();
+                                            char[] checkold = oldplt.ToCharArray();
+                                            char[] dboldplt = licplt.ToCharArray();
+
+                                            foreach (char i in checkold)
+                                            {
+                                                foreach (char c in dboldplt)
+                                                {
+                                                    if (i == c)
+                                                    {
+                                                        count++;
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            if (count > 3)
+                                            {
+                                                try
+                                                {
+
+                                                    if (star == "IN")
+                                                    {
+
+                                                        MySqlCommand command = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + name + "', now(), '" + stat + "', 'OUT');", con);
+
+                                                        con.Open(); command.ExecuteNonQuery();
+                                                        con.Close();
+                                                    }
+                                                    else
+                                                    {
+                                                        MySqlCommand cmnd = new MySqlCommand("INSERT INTO logbook(username, logdate, usertype, logdet) VALUES('" + name + "', now(), '" + stat + "', 'IN');", con);
+
+                                                        con.Open(); cmnd.ExecuteNonQuery();
+                                                        con.Close();
+                                                    }
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    MessageBox.Show(ex.Message);
+                                                }
+
+
+                                                logboook();
+                                                SetLP(licplt);
+                                            }
+                                            else
+                                            {
+                                                MessageBox.Show("SORRY THE PLATE DOES NOT MATCH!");
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("Sorry but the parking space for employees is full!");
+                                    }
                                 }
                                 else
                                 {
@@ -399,15 +721,6 @@ namespace finaltesting
 
                                             try
                                             {
-                                                con.Open();
-                                                MySqlCommand cmd = new MySqlCommand("SELECT logdet FROM logbook WHERE username = '" + name + "';", con);
-                                                MySqlDataReader reader = cmd.ExecuteReader();
-
-                                                while (reader.Read())
-                                                {
-                                                    star = (string)reader["logdet"];
-                                                }
-                                                con.Close();
 
                                                 if (star == "IN")
                                                 {
@@ -484,15 +797,6 @@ namespace finaltesting
                                         {
                                             try
                                             {
-                                                con.Open();
-                                                MySqlCommand cmd = new MySqlCommand("SELECT * FROM logbook WHERE username = '" + name + "';", con);
-                                                MySqlDataReader reader = cmd.ExecuteReader();
-
-                                                while (reader.Read())
-                                                {
-                                                    star = reader["logdet"].ToString();
-                                                }
-                                                con.Close();
 
                                                 if (star == "IN")
                                                 {

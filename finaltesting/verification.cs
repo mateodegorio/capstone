@@ -31,8 +31,8 @@ namespace finaltesting
         public int who = 0;
         public string date1, date2;
 
-        public int parkstud = 2;
-        public int parkemp = 2;
+        public int parkstud = 1;
+        public int parkemp = 1;
 
         public int inempnum = 0;
         public int instunum = 0;
@@ -72,7 +72,7 @@ namespace finaltesting
             con.Close();
         }
 
-        private void compute()
+        protected void compute()
         {
             ///////////////////// GOING IN //////////////////////////////
             /////////////////////////////////////////////////////////////////// FOR GOING IN EMPLOYEES
